@@ -2,7 +2,7 @@
 const state = {
   activeTab: 'text',
   backendUrl: localStorage.getItem('backendUrl') || 'http://localhost:3001',
-  n8nWebhookUrl: localStorage.getItem('n8nWebhookUrl') || 'http://localhost:5678/webhook/triagem-ia',
+  n8nWebhookUrl: localStorage.getItem('n8nWebhookUrl') || 'https://n8n.dmedia.com.br/webhook/e7561c7e-44bb-4dcf-8a43-a8adca53ae32',
   geminiApiKey: localStorage.getItem('geminiApiKey') || '',
   routingMode: localStorage.getItem('routingMode') || 'n8n',
   selectedFile: null,
