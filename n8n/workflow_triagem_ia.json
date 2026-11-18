@@ -1,10 +1,25 @@
 {
-  "name": "KODIE - Triagem Inteligente de Mensagens e Atendimento",
+  "name": "KODIE - Triagem Inteligente com IA e Automação",
   "nodes": [
     {
       "parameters": {
+        "content": "### 🚀 KODIE Desafio 1 — Triagem Inteligente\n1. **Webhook:** Recebe as mensagens e arquivos do Frontend.\n2. **Normalizar:** Trata texto, origem e chave.\n3. **API Express:** Chama o Gemini e salva histórico no SQLite.\n4. **Switch:** Faz a triagem automática de Urgência/Prioridade.\n5. **Respond to Webhook:** Devolve o JSON estruturado ao Frontend.",
+        "height": 180,
+        "width": 500
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        80
+      ],
+      "id": "sticky-note-info",
+      "name": "Instruções do Desafio"
+    },
+    {
+      "parameters": {
         "httpMethod": "POST",
-        "path": "triagem-ia",
+        "path": "e7561c7e-44bb-4dcf-8a43-a8adca53ae32",
         "responseMode": "responseNode",
         "options": {}
       },
@@ -12,7 +27,7 @@
       "typeVersion": 2,
       "position": [
         200,
-        300
+        340
       ],
       "id": "node-webhook",
       "name": "Webhook de Entrada"
@@ -52,8 +67,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        420,
-        300
+        440,
+        340
       ],
       "id": "node-edit-fields",
       "name": "Normalizar Dados"
@@ -79,8 +94,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        640,
-        300
+        680,
+        340
       ],
       "id": "node-http-request",
       "name": "Chamar API Express (Gemini)"
@@ -127,8 +142,8 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        860,
-        300
+        920,
+        340
       ],
       "id": "node-switch-prioridade",
       "name": "Roteador por Prioridade"
@@ -148,6 +163,12 @@
               "name": "alerta_canal",
               "value": "#atendimento-critico-notificacao",
               "type": "string"
+            },
+            {
+              "id": "status-atendimento",
+              "name": "status_triagem",
+              "value": "Encaminhado para Fila de Alta Prioridade",
+              "type": "string"
             }
           ]
         },
@@ -156,8 +177,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1100,
-        220
+        1160,
+        240
       ],
       "id": "node-alerta-urgente",
       "name": "Definir SLA Crítico"
@@ -177,6 +198,12 @@
               "name": "alerta_canal",
               "value": "#fila-geral-atendimento",
               "type": "string"
+            },
+            {
+              "id": "status-atendimento",
+              "name": "status_triagem",
+              "value": "Encaminhado para Fila Padrão",
+              "type": "string"
             }
           ]
         },
@@ -185,8 +212,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1100,
-        380
+        1160,
+        440
       ],
       "id": "node-fila-padrao",
       "name": "Definir SLA Padrão"
@@ -194,14 +221,14 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={\n  \"success\": true,\n  \"orquestrador\": \"n8n\",\n  \"sla\": \"{{ $json.sla_atendimento }}\",\n  \"canal_notificacao\": \"{{ $json.alerta_canal }}\",\n  \"data\": {{ JSON.stringify($('Chamar API Express (Gemini)').item.json.data) }}\n}",
+        "responseBody": "={\n  \"success\": true,\n  \"orquestrador\": \"n8n\",\n  \"sla\": \"{{ $json.sla_atendimento }}\",\n  \"canal_notificacao\": \"{{ $json.alerta_canal }}\",\n  \"status_triagem\": \"{{ $json.status_triagem }}\",\n  \"data\": {{ JSON.stringify($('Chamar API Express (Gemini)').item.json.data) }}\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        1340,
-        300
+        1400,
+        340
       ],
       "id": "node-respond-webhook",
       "name": "Responder ao Frontend"
@@ -286,4 +313,3 @@
     "executionOrder": "v1"
   }
 }
-
