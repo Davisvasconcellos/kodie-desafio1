@@ -123,6 +123,51 @@ app.delete('/api/history', (req, res) => {
   }
 });
 
+/**
+ * POST /api/webhook-relay
+ * Atua como intermediário seguro entre o Frontend e o n8n para evitar bloqueios de CORS no navegador.
+ */
+app.post('/api/webhook-relay', async (req, res) => {
+  try {
+    const { webhookUrl, payload } = req.body;
+
+    if (!webhookUrl) {
+      return res.status(400).json({ success: false, error: 'A URL do Webhook é obrigatória.' });
+    }
+
+    const startTime = Date.now();
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload || {})
+    });
+
+    const elapsed = Date.now() - startTime;
+    const contentType = response.headers.get('content-type') || '';
+    let responseData;
+    if (contentType.includes('application/json')) {
+      responseData = await response.json();
+    } else {
+      responseData = await response.text();
+    }
+
+    return res.status(response.status).json({
+      success: response.ok,
+      status: response.status,
+      elapsed,
+      data: responseData
+    });
+  } catch (error) {
+    console.error('Erro no relay para o n8n:', error);
+    return res.status(502).json({
+      success: false,
+      error: `Não foi possível conectar ao n8n: ${error.message}`
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Servidor backend rodando em http://localhost:${PORT}`);
 });

@@ -319,40 +319,40 @@ async function testN8nWebhook() {
       timestamp: new Date().toISOString()
     };
 
-    const res = await fetch(targetUrl, {
+    // Envia através do backend relay para evitar bloqueio de CORS do navegador
+    const res = await fetch(`${state.backendUrl}/api/webhook-relay`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        webhookUrl: targetUrl,
+        payload
+      })
     });
 
     const elapsed = Math.round(performance.now() - startTime);
     latencyEl.innerText = `${elapsed} ms`;
 
-    let data;
-    const contentType = res.headers.get('content-type') || '';
-    if (contentType.includes('application/json')) {
-      data = await res.json();
-    } else {
-      data = await res.text();
-    }
+    const relayJson = await res.json();
+    const statusCode = relayJson.status || res.status;
+    const responseData = relayJson.data || relayJson;
 
-    if (res.ok) {
+    if (res.ok && relayJson.success) {
       resultBox.className = 'text-xs p-3 rounded-lg border font-mono transition-all bg-emerald-950/30 border-emerald-800 text-emerald-300';
-      titleEl.innerText = `✅ Sucesso HTTP ${res.status}`;
+      titleEl.innerText = `✅ Sucesso HTTP ${statusCode}`;
       msgEl.innerText = 'O n8n recebeu a requisição e retornou uma resposta válida!';
-      bodyEl.innerText = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
-    } else if (res.status === 404) {
+      bodyEl.innerText = typeof responseData === 'object' ? JSON.stringify(responseData, null, 2) : responseData;
+    } else if (statusCode === 404) {
       resultBox.className = 'text-xs p-3 rounded-lg border font-mono transition-all bg-amber-950/30 border-amber-800 text-amber-300';
       titleEl.innerText = `⚠️ Atenção HTTP 404 Not Found`;
       msgEl.innerText = 'O n8n respondeu, mas informou que este Webhook não está ativo ou não foi registrado. Ative o fluxo no n8n (toggle Active) ou clique em "Listen for test event".';
-      bodyEl.innerText = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+      bodyEl.innerText = typeof responseData === 'object' ? JSON.stringify(responseData, null, 2) : responseData;
     } else {
       resultBox.className = 'text-xs p-3 rounded-lg border font-mono transition-all bg-rose-950/30 border-rose-800 text-rose-300';
-      titleEl.innerText = `❌ Erro HTTP ${res.status}`;
-      msgEl.innerText = 'O n8n recebeu o chamado, mas ocorreu um erro no processamento do fluxo.';
-      bodyEl.innerText = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+      titleEl.innerText = `❌ Resposta HTTP ${statusCode}`;
+      msgEl.innerText = relayJson.error || 'O n8n recebeu o chamado, mas ocorreu um erro no processamento do fluxo.';
+      bodyEl.innerText = typeof responseData === 'object' ? JSON.stringify(responseData, null, 2) : responseData;
     }
   } catch (err) {
     const elapsed = Math.round(performance.now() - startTime);
@@ -401,19 +401,24 @@ async function handleAnalyze(type) {
     let responseData = null;
 
     if (state.routingMode === 'n8n') {
-      // Envio via Webhook do n8n
-      const res = await fetch(state.n8nWebhookUrl, {
+      // Envio via relay seguro no backend para evitar bloqueio de CORS do navegador
+      const res = await fetch(`${state.backendUrl}/api/webhook-relay`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          webhookUrl: state.n8nWebhookUrl,
+          payload
+        })
       });
 
-      if (!res.ok) {
-        throw new Error(`O Webhook do n8n retornou erro HTTP ${res.status}. Verifique se o fluxo está ativo.`);
+      const resJson = await res.json();
+      if (!res.ok || !resJson.success) {
+        const errorDetail = resJson.error || resJson.data?.message || `Erro HTTP ${res.status}`;
+        throw new Error(`Falha no n8n: ${errorDetail}`);
       }
 
-      const resJson = await res.json();
-      responseData = resJson.data || resJson;
+      const relayData = resJson.data;
+      responseData = relayData.data || relayData;
     } else {
       // Envio direto para o Express
       const headers = { 'Content-Type': 'application/json' };
