@@ -280,6 +280,94 @@ function saveConfigurations() {
   switchTab('text');
 }
 
+// Teste de Diagnóstico do Webhook n8n
+async function testN8nWebhook() {
+  const urlInput = document.getElementById('cfgN8nUrl');
+  const targetUrl = urlInput ? urlInput.value.trim() : state.n8nWebhookUrl;
+
+  const btn = document.getElementById('btnTestWebhook');
+  const resultBox = document.getElementById('webhookTestResult');
+  const titleEl = document.getElementById('webhookStatusTitle');
+  const latencyEl = document.getElementById('webhookLatency');
+  const msgEl = document.getElementById('webhookStatusMessage');
+  const bodyEl = document.getElementById('webhookResponseBody');
+
+  if (!targetUrl) {
+    alert('Por favor, informe a URL do Webhook do n8n para testar.');
+    return;
+  }
+
+  // Estado de loading
+  btn.disabled = true;
+  btn.innerHTML = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i><span>Enviando teste ao n8n...</span>`;
+  resultBox.classList.remove('hidden');
+  resultBox.className = 'text-xs p-3 rounded-lg border font-mono transition-all bg-slate-900 border-slate-700 text-slate-300';
+  titleEl.innerText = 'Testando conexão...';
+  latencyEl.innerText = 'Aguardando...';
+  msgEl.innerText = `Disparando requisição POST para: ${targetUrl}`;
+  bodyEl.innerText = 'Enviando payload de teste...';
+  initIcons();
+
+  const startTime = performance.now();
+
+  try {
+    const payload = {
+      text: "Mensagem de teste de diagnóstico disparada a partir do Frontend.",
+      source: "diagnostico_frontend",
+      filename: null,
+      apiKey: state.geminiApiKey || undefined,
+      timestamp: new Date().toISOString()
+    };
+
+    const res = await fetch(targetUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const elapsed = Math.round(performance.now() - startTime);
+    latencyEl.innerText = `${elapsed} ms`;
+
+    let data;
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      data = await res.json();
+    } else {
+      data = await res.text();
+    }
+
+    if (res.ok) {
+      resultBox.className = 'text-xs p-3 rounded-lg border font-mono transition-all bg-emerald-950/30 border-emerald-800 text-emerald-300';
+      titleEl.innerText = `✅ Sucesso HTTP ${res.status}`;
+      msgEl.innerText = 'O n8n recebeu a requisição e retornou uma resposta válida!';
+      bodyEl.innerText = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+    } else if (res.status === 404) {
+      resultBox.className = 'text-xs p-3 rounded-lg border font-mono transition-all bg-amber-950/30 border-amber-800 text-amber-300';
+      titleEl.innerText = `⚠️ Atenção HTTP 404 Not Found`;
+      msgEl.innerText = 'O n8n respondeu, mas informou que este Webhook não está ativo ou não foi registrado. Ative o fluxo no n8n (toggle Active) ou clique em "Listen for test event".';
+      bodyEl.innerText = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+    } else {
+      resultBox.className = 'text-xs p-3 rounded-lg border font-mono transition-all bg-rose-950/30 border-rose-800 text-rose-300';
+      titleEl.innerText = `❌ Erro HTTP ${res.status}`;
+      msgEl.innerText = 'O n8n recebeu o chamado, mas ocorreu um erro no processamento do fluxo.';
+      bodyEl.innerText = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+    }
+  } catch (err) {
+    const elapsed = Math.round(performance.now() - startTime);
+    latencyEl.innerText = `${elapsed} ms`;
+    resultBox.className = 'text-xs p-3 rounded-lg border font-mono transition-all bg-rose-950/30 border-rose-800 text-rose-300';
+    titleEl.innerText = '❌ Falha de Rede ou CORS';
+    msgEl.innerText = `Não foi possível alcançar o n8n (${err.message}). Pode ser bloqueio de CORS no navegador ou URL incorreta.`;
+    bodyEl.innerText = String(err.stack || err);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<i data-lucide="send" class="w-3.5 h-3.5"></i><span>Disparar Teste para o Webhook</span>`;
+    initIcons();
+  }
+}
+
 // Processar Análise (Texto ou Arquivo)
 async function handleAnalyze(type) {
   let textToAnalyze = '';

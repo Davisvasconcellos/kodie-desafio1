@@ -224,12 +224,47 @@
             </div>
           </div>
 
-          <!-- n8n Webhook URL -->
-          <div id="cfgN8nContainer">
-            <label class="font-medium text-slate-700 dark:text-slate-300 block mb-1">URL do Webhook n8n:</label>
+          <!-- n8n Webhook URL & Modo de Teste -->
+          <div id="cfgN8nContainer" class="p-3.5 bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label class="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                <i data-lucide="radio" class="w-3.5 h-3.5 text-indigo-500"></i>
+                URL do Webhook n8n:
+              </label>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-mono">Modo Teste Integrado</span>
+            </div>
+            
             <input type="text" id="cfgN8nUrl" value="https://n8n.dmedia.com.br/webhook/e7561c7e-44bb-4dcf-8a43-a8adca53ae32" 
-              class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-2.5 text-slate-800 dark:text-slate-200 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 transition">
-            <p class="text-[11px] text-slate-500 mt-1">Webhook configurado no fluxo de automação do n8n.</p>
+              class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-2.5 text-slate-800 dark:text-slate-200 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 transition">
+            
+            <div class="flex items-center gap-2">
+              <button type="button" id="btnTestWebhook" onclick="testN8nWebhook()" class="flex-1 py-2 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
+                <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                <span>Disparar Teste para o Webhook</span>
+              </button>
+            </div>
+
+            <!-- Caixa de Diagnóstico do Teste -->
+            <div id="webhookTestResult" class="hidden text-xs p-3 rounded-lg border font-mono transition-all">
+              <div class="flex items-center justify-between font-bold mb-1">
+                <span id="webhookStatusTitle">Status: -</span>
+                <span id="webhookLatency" class="text-[10px] text-slate-500">0 ms</span>
+              </div>
+              <p id="webhookStatusMessage" class="text-[11px] mb-1.5"></p>
+              <pre id="webhookResponseBody" class="p-2 rounded bg-black/40 text-[10px] overflow-x-auto max-h-32 text-slate-300"></pre>
+            </div>
+
+            <!-- Aviso de Nuvem vs Localhost -->
+            <div class="p-2.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-lg text-[11px] text-amber-800 dark:text-amber-300 space-y-1">
+              <p class="font-semibold flex items-center gap-1">
+                <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                Atenção à Conexão (Nuvem x Local):
+              </p>
+              <p class="text-amber-700 dark:text-amber-400">
+                Se o n8n está no Dokploy (nuvem) e o Backend está no seu computador (<code>localhost:3001</code>), o n8n não alcança seu computador diretamente.
+                Para testar ponta a ponta agora: selecione <strong>"Direto na API"</strong> na Rota de Processamento acima, ou use um túnel (ex: <code>npx localtunnel --port 3001</code>) no nó HTTP do n8n.
+              </p>
+            </div>
           </div>
 
           <!-- Backend API URL -->
