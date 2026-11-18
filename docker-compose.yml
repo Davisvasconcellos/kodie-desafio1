@@ -1,0 +1,45 @@
+services:
+  # 1. API Backend Express com Gemini e SQLite
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kodie-api
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    volumes:
+      - ./backend/data.sqlite:/app/data.sqlite
+      - ./frontend:/frontend:ro
+    networks:
+      - kodie-network
+
+  # 2. n8n - Orquestrador de Automação
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: kodie-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n/workflow_triagem_ia.json:/workflows/workflow_triagem_ia.json:ro
+    networks:
+      - kodie-network
+
+networks:
+  kodie-network:
+    driver: bridge
+
+volumes:
+  n8n_data:
+

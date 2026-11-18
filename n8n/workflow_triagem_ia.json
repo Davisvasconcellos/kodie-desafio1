@@ -1,0 +1,289 @@
+{
+  "name": "KODIE - Triagem Inteligente de Mensagens e Atendimento",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "triagem-ia",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        200,
+        300
+      ],
+      "id": "node-webhook",
+      "name": "Webhook de Entrada"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fld-text",
+              "name": "text",
+              "value": "={{ $json.body.text }}",
+              "type": "string"
+            },
+            {
+              "id": "fld-source",
+              "name": "source",
+              "value": "={{ $json.body.source || 'text' }}",
+              "type": "string"
+            },
+            {
+              "id": "fld-filename",
+              "name": "filename",
+              "value": "={{ $json.body.filename || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "fld-apiKey",
+              "name": "apiKey",
+              "value": "={{ $json.body.apiKey || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        420,
+        300
+      ],
+      "id": "node-edit-fields",
+      "name": "Normalizar Dados"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3001/api/analyze",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"text\": \"{{ $json.text }}\",\n  \"source\": \"{{ $json.source }}\",\n  \"filename\": \"{{ $json.filename }}\",\n  \"apiKey\": \"{{ $json.apiKey }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        300
+      ],
+      "id": "node-http-request",
+      "name": "Chamar API Express (Gemini)"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data.prioridade }}",
+                    "rightValue": "Crítica",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "leftValue": "={{ $json.data.prioridade }}",
+                    "rightValue": "Alta",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "or"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        860,
+        300
+      ],
+      "id": "node-switch-prioridade",
+      "name": "Roteador por Prioridade"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "sla-urgente",
+              "name": "sla_atendimento",
+              "value": "30 minutos (SLA Urgente)",
+              "type": "string"
+            },
+            {
+              "id": "alerta-canal",
+              "name": "alerta_canal",
+              "value": "#atendimento-critico-notificacao",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1100,
+        220
+      ],
+      "id": "node-alerta-urgente",
+      "name": "Definir SLA Crítico"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "sla-padrao",
+              "name": "sla_atendimento",
+              "value": "4 horas (SLA Normal)",
+              "type": "string"
+            },
+            {
+              "id": "alerta-canal",
+              "name": "alerta_canal",
+              "value": "#fila-geral-atendimento",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1100,
+        380
+      ],
+      "id": "node-fila-padrao",
+      "name": "Definir SLA Padrão"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"orquestrador\": \"n8n\",\n  \"sla\": \"{{ $json.sla_atendimento }}\",\n  \"canal_notificacao\": \"{{ $json.alerta_canal }}\",\n  \"data\": {{ JSON.stringify($('Chamar API Express (Gemini)').item.json.data) }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1340,
+        300
+      ],
+      "id": "node-respond-webhook",
+      "name": "Responder ao Frontend"
+    }
+  ],
+  "connections": {
+    "Webhook de Entrada": {
+      "main": [
+        [
+          {
+            "node": "Normalizar Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar Dados": {
+      "main": [
+        [
+          {
+            "node": "Chamar API Express (Gemini)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chamar API Express (Gemini)": {
+      "main": [
+        [
+          {
+            "node": "Roteador por Prioridade",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Roteador por Prioridade": {
+      "main": [
+        [
+          {
+            "node": "Definir SLA Crítico",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Definir SLA Padrão",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Definir SLA Crítico": {
+      "main": [
+        [
+          {
+            "node": "Responder ao Frontend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Definir SLA Padrão": {
+      "main": [
+        [
+          {
+            "node": "Responder ao Frontend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
+
