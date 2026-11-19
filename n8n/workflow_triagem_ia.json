@@ -4,16 +4,16 @@
     {
       "parameters": {
         "content": "### 🚀 KODIE Desafio 1 — Triagem Inteligente\n1. **Webhook:** Recebe as mensagens e arquivos do Frontend.\n2. **Normalizar:** Trata texto, origem e chave.\n3. **API Express:** Chama o Gemini e salva histórico no SQLite.\n4. **Switch:** Faz a triagem automática de Urgência/Prioridade.\n5. **Respond to Webhook:** Devolve o JSON estruturado ao Frontend.",
-        "height": 180,
+        "height": 260,
         "width": 500
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        200,
-        80
+        32,
+        -336
       ],
-      "id": "sticky-note-info",
+      "id": "08a4c0e3-fae9-47a7-b0ec-798d61ad2cc2",
       "name": "Instruções do Desafio"
     },
     {
@@ -26,11 +26,12 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        200,
-        340
+        -64,
+        -32
       ],
-      "id": "node-webhook",
-      "name": "Webhook de Entrada"
+      "id": "9f3a4176-17b5-44bf-bc27-1a33ef1ca680",
+      "name": "Webhook de Entrada",
+      "webhookId": "bd329d5a-1fb2-4b96-a9f9-a802257a17aa"
     },
     {
       "parameters": {
@@ -67,10 +68,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        440,
-        340
+        176,
+        -32
       ],
-      "id": "node-edit-fields",
+      "id": "afc10f42-e739-4c35-8386-da9db4d96e1f",
       "name": "Normalizar Dados"
     },
     {
@@ -96,10 +97,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        680,
-        340
+        416,
+        -32
       ],
-      "id": "node-http-request",
+      "id": "2bb3ffd1-2226-462a-8061-16f747b8b376",
       "name": "Chamar API Express (Gemini)"
     },
     {
@@ -144,10 +145,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        920,
-        340
+        656,
+        -32
       ],
-      "id": "node-switch-prioridade",
+      "id": "988981e7-dae2-45d8-9524-e1391df679b9",
       "name": "Roteador por Prioridade"
     },
     {
@@ -179,10 +180,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1160,
-        240
+        896,
+        -144
       ],
-      "id": "node-alerta-urgente",
+      "id": "7211b339-a78f-49fd-a72a-6001a3a02004",
       "name": "Definir SLA Crítico"
     },
     {
@@ -214,10 +215,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1160,
-        440
+        896,
+        64
       ],
-      "id": "node-fila-padrao",
+      "id": "9e635b31-ea88-4eba-8e31-df16ff63f9c9",
       "name": "Definir SLA Padrão"
     },
     {
@@ -229,13 +230,14 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        1400,
-        340
+        1136,
+        -32
       ],
-      "id": "node-respond-webhook",
+      "id": "4af27150-7279-4715-95e6-099457af2b82",
       "name": "Responder ao Frontend"
     }
   ],
+  "pinData": {},
   "connections": {
     "Webhook de Entrada": {
       "main": [
@@ -311,7 +313,24 @@
       ]
     }
   },
+  "active": true,
   "settings": {
-    "executionOrder": "v1"
-  }
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "0f66297a-58e0-4540-8303-526d862209de",
+  "meta": {
+    "instanceId": "4c13eeb642576cbd1f7c1ce991388d1c58af75255e62c3e2b7ba2fbf424241ac"
+  },
+  "nodeGroups": [],
+  "id": "roDRqa3rjHokWFB5",
+  "tags": [
+    {
+      "name": "Kodie-desafio1",
+      "id": "ejxH6fLwnm8boj7y",
+      "updatedAt": "2026-11-18T23:05:22.726Z",
+      "createdAt": "2026-11-18T23:05:22.726Z"
+    }
+  ]
 }
