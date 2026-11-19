@@ -5,6 +5,7 @@
 
 [![Status](https://img.shields.io/badge/Status-100%25%20Funcional-emerald?style=flat-square)](#)
 [![Deploy Dokploy](https://img.shields.io/badge/Deploy-Dokploy%20(Online)-blue?style=flat-square)](https://desafio1.dmedia.com.br)
+[![Vídeo Explicativo](https://img.shields.io/badge/Vídeo%20Demo-Jam.dev-red?style=flat-square)](https://jam.dev/c/596f6948-7978-4f74-914b-f06263acf0bc)
 [![n8n Produção](https://img.shields.io/badge/Automação-n8n%20Webhook-orange?style=flat-square)](https://n8n.dmedia.com.br)
 [![Node](https://img.shields.io/badge/Node.js-v24-green?style=flat-square)](https://nodejs.org/)
 [![IA](https://img.shields.io/badge/IA-Google%20Gemini-indigo?style=flat-square)](https://aistudio.google.com/)
@@ -15,6 +16,7 @@
 ## 🌐 Acesso Imediato aos Ambientes Online
 
 * 🔗 **Aplicação em Produção (Frontend + API):** [https://desafio1.dmedia.com.br](https://desafio1.dmedia.com.br)
+* 🎥 **Vídeo Explicativo / Demonstração Completa (Jam):** [https://jam.dev/c/596f6948-7978-4f74-914b-f06263acf0bc](https://jam.dev/c/596f6948-7978-4f74-914b-f06263acf0bc)
 * ⚡ **Webhook n8n (Orquestrador em Produção):** `https://n8n.dmedia.com.br/webhook/e7561c7e-44bb-4dcf-8a43-a8adca53ae32`
 * 🐙 **Repositório GitHub:** [https://github.com/Davisvasconcellos/kodie-desafio1](https://github.com/Davisvasconcellos/kodie-desafio1)
 
@@ -341,3 +343,4 @@ DESAFIO-1/
 - [x] **Entrega com Docker:** Dockerfile e `docker-compose.yml` funcionais (Diferencial atendido).
 - [x] **Deploy em Nuvem:** Sistema em produção rodando no Dokploy com HTTPS ativo.
 - [x] **Segurança e Boas Práticas:** Nenhuma credencial exposta e proteção `ALLOW_CONFIG_EDITS` implementada.
+- [x] **Vídeo Explicativo e Pitch Técnico:** Gravado e disponível no Jam ([assistir demonstração](https://jam.dev/c/596f6948-7978-4f74-914b-f06263acf0bc)).
