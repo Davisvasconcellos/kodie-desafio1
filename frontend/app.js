@@ -335,10 +335,12 @@ async function checkConfigProtection() {
 function applyLockState(allowEdits) {
   const geminiInput = document.getElementById('cfgGeminiKey');
   const n8nInput = document.getElementById('cfgN8nUrl');
+  const backendInput = document.getElementById('cfgBackendUrl');
   const lockBanner = document.getElementById('cfgLockBanner');
   const badge = document.getElementById('cfgProtectionBadge');
   const geminiLockStatus = document.getElementById('geminiLockStatus');
   const webhookLockStatus = document.getElementById('webhookLockStatus');
+  const backendLockStatus = document.getElementById('backendLockStatus');
 
   if (!allowEdits) {
     // MODO SOMENTE LEITURA (BLOQUEADO)
@@ -354,10 +356,16 @@ function applyLockState(allowEdits) {
       n8nInput.classList.add('bg-slate-100', 'dark:bg-slate-900/60', 'text-slate-400', 'cursor-not-allowed');
       n8nInput.classList.remove('bg-white', 'dark:bg-slate-900', 'text-slate-800', 'dark:text-slate-200');
     }
+    if (backendInput) {
+      backendInput.readOnly = true;
+      backendInput.classList.add('bg-slate-100', 'dark:bg-slate-900/60', 'text-slate-400', 'cursor-not-allowed');
+      backendInput.classList.remove('bg-slate-50', 'dark:bg-slate-950', 'text-slate-800', 'dark:text-slate-200');
+    }
     if (lockBanner) lockBanner.classList.remove('hidden');
     if (badge) badge.classList.remove('hidden');
     if (geminiLockStatus) geminiLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium"><i data-lucide="lock" class="w-3 h-3"></i> Somente Leitura</span>';
     if (webhookLockStatus) webhookLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium"><i data-lucide="lock" class="w-3 h-3"></i> Somente Leitura</span>';
+    if (backendLockStatus) backendLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium"><i data-lucide="lock" class="w-3 h-3"></i> Somente Leitura</span>';
   } else {
     // MODO EDITÁVEL (ALLOW_CONFIG_EDITS=true)
     if (geminiInput) {
@@ -371,26 +379,33 @@ function applyLockState(allowEdits) {
       n8nInput.classList.remove('bg-slate-100', 'dark:bg-slate-900/60', 'text-slate-400', 'cursor-not-allowed');
       n8nInput.classList.add('bg-white', 'dark:bg-slate-900', 'text-slate-800', 'dark:text-slate-200');
     }
+    if (backendInput) {
+      backendInput.readOnly = false;
+      backendInput.classList.remove('bg-slate-100', 'dark:bg-slate-900/60', 'text-slate-400', 'cursor-not-allowed');
+      backendInput.classList.add('bg-slate-50', 'dark:bg-slate-950', 'text-slate-800', 'dark:text-slate-200');
+    }
     if (lockBanner) lockBanner.classList.add('hidden');
     if (badge) badge.classList.add('hidden');
     if (geminiLockStatus) geminiLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium"><i data-lucide="unlock" class="w-3 h-3"></i> Editável</span>';
     if (webhookLockStatus) webhookLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium"><i data-lucide="unlock" class="w-3 h-3"></i> Editável</span>';
+    if (backendLockStatus) backendLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium"><i data-lucide="unlock" class="w-3 h-3"></i> Editável</span>';
   }
 }
 
 function saveConfigurations() {
-  const newBackendUrl = document.getElementById('cfgBackendUrl').value.trim();
   const newRoutingMode = document.querySelector('input[name="routingMode"]:checked')?.value || 'n8n';
-
-  state.backendUrl = newBackendUrl || defaultBackendUrl;
   state.routingMode = newRoutingMode;
-  localStorage.setItem('backendUrl', state.backendUrl);
   localStorage.setItem('routingMode', state.routingMode);
 
-  // Apenas salva n8nWebhookUrl e geminiApiKey no localStorage se a edição estiver liberada
+  // Apenas salva backendUrl, n8nWebhookUrl e geminiApiKey no localStorage se a edição estiver liberada
   if (state.allowConfigEdits) {
+    const newBackendUrl = document.getElementById('cfgBackendUrl').value.trim();
     const newN8nUrl = document.getElementById('cfgN8nUrl').value.trim();
     const newGeminiKey = document.getElementById('cfgGeminiKey').value.trim();
+    if (newBackendUrl) {
+      state.backendUrl = newBackendUrl;
+      localStorage.setItem('backendUrl', state.backendUrl);
+    }
     if (newN8nUrl) {
       state.n8nWebhookUrl = newN8nUrl;
       localStorage.setItem('n8nWebhookUrl', state.n8nWebhookUrl);
