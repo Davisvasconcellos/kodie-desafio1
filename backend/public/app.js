@@ -514,7 +514,7 @@ async function handleAnalyze(type) {
     }
   }
 
-  setLoading(true);
+  setLoading(true, { type, filename });
 
   try {
     const payload = {
@@ -574,21 +574,67 @@ async function handleAnalyze(type) {
   }
 }
 
-// Controle de Loading
-function setLoading(isLoading) {
+// Controle de Loading e Overlay em Tela Cheia
+let loadingTimerInterval = null;
+let loadingStartTime = 0;
+
+function setLoading(isLoading, context = {}) {
+  const overlay = document.getElementById('loadingOverlay');
+  const overlayTitle = document.getElementById('overlayTitle');
+  const overlaySubtitle = document.getElementById('overlaySubtitle');
+  const overlayStepText = document.getElementById('overlayStepText');
+  const overlayTimer = document.getElementById('overlayTimer');
   const badge = document.getElementById('processingBadge');
   const btnText = document.getElementById('btnAnalyzeText');
   const btnFile = document.getElementById('btnAnalyzeFile');
 
   if (isLoading) {
-    badge.classList.remove('hidden');
+    if (badge) badge.classList.remove('hidden');
     if (btnText) btnText.disabled = true;
     if (btnFile) btnFile.disabled = true;
+
+    if (overlay) {
+      overlay.classList.remove('hidden');
+
+      if (context.type === 'file') {
+        if (overlayTitle) overlayTitle.innerText = 'Processando Documento com IA';
+        if (overlaySubtitle) overlaySubtitle.innerText = `Analisando "${context.filename || 'arquivo'}" via esteira inteligente...`;
+      } else {
+        if (overlayTitle) overlayTitle.innerText = 'Processando Triagem Inteligente';
+        if (overlaySubtitle) overlaySubtitle.innerText = 'Classificando mensagem, gerando resumo e calculando SLA...';
+      }
+
+      if (overlayStepText) {
+        overlayStepText.innerText = state.routingMode === 'n8n' 
+          ? 'Orquestrando via n8n (Webhook + IA + SLA)...' 
+          : 'Consultando API Google Gemini (Direto)...';
+      }
+
+      // Cronômetro dinâmico de latência
+      loadingStartTime = performance.now();
+      if (overlayTimer) overlayTimer.innerText = '0.0s';
+      if (loadingTimerInterval) clearInterval(loadingTimerInterval);
+      loadingTimerInterval = setInterval(() => {
+        const elapsed = ((performance.now() - loadingStartTime) / 1000).toFixed(1);
+        if (overlayTimer) overlayTimer.innerText = `${elapsed}s`;
+      }, 100);
+    }
   } else {
-    badge.classList.add('hidden');
+    if (badge) badge.classList.add('hidden');
     if (btnText) btnText.disabled = false;
     if (btnFile) btnFile.disabled = false;
+
+    if (loadingTimerInterval) {
+      clearInterval(loadingTimerInterval);
+      loadingTimerInterval = null;
+    }
+
+    if (overlay) {
+      overlay.classList.add('hidden');
+    }
   }
+
+  initIcons();
 }
 
 // Renderiza o resultado da IA na tela

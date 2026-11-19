@@ -433,6 +433,54 @@
 
   </main>
 
+  <!-- Modal / Overlay de Loading em Tela Cheia -->
+  <div id="loadingOverlay" class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-md hidden flex items-center justify-center p-4 transition-all duration-300">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 max-w-sm w-full shadow-2xl flex flex-col items-center text-center space-y-4">
+      
+      <!-- Spinner Animado com Gradiente e Glow -->
+      <div class="relative w-20 h-20 flex items-center justify-center">
+        <!-- Anel pulsante de fundo -->
+        <div class="absolute inset-0 rounded-full bg-indigo-500/20 dark:bg-indigo-500/30 animate-ping"></div>
+        <!-- Anel girando -->
+        <div class="w-16 h-16 rounded-full border-4 border-indigo-100 dark:border-slate-800 border-t-indigo-600 dark:border-t-indigo-500 animate-spin"></div>
+        <!-- Ícone central com pulso -->
+        <div class="absolute inset-0 flex items-center justify-center">
+          <i data-lucide="sparkles" class="w-6 h-6 text-indigo-600 dark:text-indigo-400 animate-pulse"></i>
+        </div>
+      </div>
+
+      <!-- Textos do Overlay -->
+      <div class="space-y-1.5">
+        <h3 id="overlayTitle" class="text-base font-bold text-slate-800 dark:text-slate-100">
+          Processando Triagem Inteligente
+        </h3>
+        <p id="overlaySubtitle" class="text-xs text-slate-500 dark:text-slate-400">
+          Conectando ao fluxo de automação e analisando...
+        </p>
+      </div>
+
+      <!-- Etapas com status -->
+      <div class="w-full bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-[11px] font-mono text-slate-600 dark:text-slate-400 space-y-2 text-left">
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
+            <span id="overlayStepText">Orquestrando esteira...</span>
+          </span>
+          <span id="overlayTimer" class="text-indigo-600 dark:text-indigo-400 font-bold">0.0s</span>
+        </div>
+        <!-- Barra de progresso animada contínua -->
+        <div class="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 rounded-full animate-pulse w-full"></div>
+        </div>
+      </div>
+
+      <p class="text-[10px] text-slate-400 dark:text-slate-500">
+        Aguarde, a IA do Google Gemini e o n8n estão analisando o conteúdo.
+      </p>
+
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer class="border-t border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/40 py-4 px-4 text-center text-xs text-slate-500 transition-colors space-y-1">
     <p class="font-medium text-slate-600 dark:text-slate-400">KODIE • Desafio Técnico: IA, Back-end (Express) & Automação (n8n)</p>
@@ -440,6 +488,6 @@
   </footer>
 
   <!-- Script Principal da Aplicação com Cache Buster -->
-  <script src="app.js?v=2.0.1"></script>
+  <script src="app.js?v=2.1.0"></script>
 </body>
 </html>
