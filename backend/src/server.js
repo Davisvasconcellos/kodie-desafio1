@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import path from 'node:path';
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { analyzeText } from './geminiService.js';
 import { saveAnalysis, getHistory, clearHistory } from './database.js';
@@ -17,9 +18,18 @@ app.use(cors());
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
-// Servir frontend estático se estiver na mesma raiz
-const frontendPath = path.join(__dirname, '..', '..', 'frontend');
-app.use(express.static(frontendPath));
+// Servir frontend estático (unificado em container Docker ou desenvolvimento local)
+const candidateStaticPaths = [
+  path.join(__dirname, '..', 'public'),
+  path.join(__dirname, '..', '..', 'frontend'),
+  path.join(__dirname, 'public')
+];
+for (const dir of candidateStaticPaths) {
+  if (fs.existsSync(dir)) {
+    app.use(express.static(dir));
+    break;
+  }
+}
 
 // Healthcheck
 app.get('/health', (req, res) => {
