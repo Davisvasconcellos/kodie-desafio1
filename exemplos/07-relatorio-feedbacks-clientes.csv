@@ -1,0 +1,8 @@
+id_chamado,data,cliente,categoria_declarada,comentario_cliente,pontuacao_nps
+CH-1001,2026-11-10,Lucas Ferreira,Financeiro,"Cobrança veio sem o desconto contratado de 20%. Aguardo retificação do boleto.",3
+CH-1002,2026-11-12,Aline Souza,Suporte,"O novo painel de gráficos ficou muito mais rápido após a atualização. Parabéns à equipe de produto!",10
+CH-1003,2026-11-14,Renato Dias,Funcionalidade,"Sentimos falta de uma integração direta com o Microsoft Teams para receber alertas automáticos.",7
+CH-1004,2026-11-15,Priscila Mendes,Suporte,"Aplicativo mobile fechando sozinho no iOS 18 ao tentar anexar foto de recibo.",4
+CH-1005,2026-11-16,Gustavo Henrique,Comercial,"Gostaria de estender o período de testes por mais 7 dias antes de fechar o contrato anual.",8
+CH-1006,2026-11-17,Daniela Castro,Reclamação,"Atendimento do suporte demorou mais de 48h para responder a um chamado simples de redefinição.",2
+CH-1007,2026-11-18,Marcos Vinicius,Elogio,"A funcionalidade de triagem automática com IA reduziu pela metade nosso tempo de resposta aos clientes!",10

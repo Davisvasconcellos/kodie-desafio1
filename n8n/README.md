@@ -11,3 +11,4 @@ Para fins **estritamente didáticos e de conformidade com o desafio**, disponibi
    - Contém os identificadores reais de execução, tags e metadados gerados pelo n8n em produção.
 
 *(O arquivo `workflow_triagem_ia.json` é mantido como espelho para compatibilidade com o Docker Compose).*
+

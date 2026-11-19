@@ -1,0 +1,26 @@
+NOTIFICAÇÃO FORMAL DE RESCISÃO CONTRATUAL E CANCELAMENTO DE SERVIÇOS
+
+À Diretoria e Departamento Jurídico / Relacionamento com Clientes
+Ref.: Contrato de Prestação de Serviços de Software nº CT-2025-0819
+Contratante: Vanguarda Comércio e Representações Eireli
+CNPJ: 12.345.678/0001-90
+
+Prezados Senhores,
+
+Vimos por meio desta notificar formalmente que optamos pela NÃO RENOVAÇÃO e CANCELAMENTO INTEGRAL do contrato supracitado, com efeitos a partir do término do ciclo vigente em 30 de Novembro de 2026.
+
+Motivo da decisão:
+Ao longo dos últimos quatro meses, registramos múltiplos chamados técnicos (protocolos nº 7712, 7943 e 8201) apontando lentidão crônica na sincronização de inventário e instabilidades recorrentes no painel gerencial. Em nenhuma das ocasiões obtivemos resolução definitiva ou plano de contingência satisfatório, o que gerou rupturas de estoque e severos prejuízos à nossa operação comercial.
+
+Requisitos finais para o encerramento:
+1. Geração e envio do arquivo com a extração completa de todos os nossos dados históricos (banco de clientes, vendas e relatórios) em formato CSV ou JSON no prazo máximo de 5 dias úteis, em conformidade com a LGPD (Lei nº 13.709/2018).
+2. Cancelamento imediato de quaisquer cobranças recorrentes no cartão de crédito corporativo cadastrado a partir de 01/12/2026.
+3. Emissão da certidão de quitação e encerramento de pendências mútuas.
+
+Solicitamos confirmação expressa do recebimento deste pedido no prazo de até 48 horas úteis.
+
+São Paulo, 18 de Novembro de 2026.
+
+Juliana Martins Valadares
+Diretora Administrativa
+Vanguarda Comércio e Representações Eireli

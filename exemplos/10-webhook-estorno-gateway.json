@@ -1,0 +1,23 @@
+{
+  "event": "chargeback.requested",
+  "gateway": "PagarMe_V5",
+  "timestamp": "2026-11-18T18:44:21.000Z",
+  "dispute": {
+    "dispute_id": "dsp_9918237461",
+    "transaction_id": "tx_20261110_77812",
+    "amount_cents": 125000,
+    "currency": "BRL",
+    "reason": "fraud_unrecognized_charge",
+    "status": "under_review",
+    "deadline_to_reply": "2026-11-21T23:59:59.000Z"
+  },
+  "customer": {
+    "name": "Marcelo Dantas Pinheiro",
+    "email": "marcelo.pinheiro@emailficticio.com.br",
+    "document": "333.444.555-66",
+    "phone": "+5511977778888",
+    "customer_id": "cus_887192"
+  },
+  "message_from_issuer": "Titular do cartão afirma não reconhecer compra de R$ 1.250,00 no plano Corporativo Semestral efetuada em 10/11/2026. Necessário envio de logs de IP, aceite dos termos de serviço e comprovante de entrega/utilização do software para contestar o estorno.",
+  "action_required": "O departamento financeiro e de risco deve submeter a defesa com os comprovantes de acesso em até 3 dias úteis para evitar débito definitivo e taxa de disputa de R$ 60,00 na adquirente."
+}

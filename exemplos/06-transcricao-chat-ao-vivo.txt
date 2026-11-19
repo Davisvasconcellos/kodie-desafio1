@@ -1,0 +1,26 @@
+=======================================================
+TRANSCRIÇÃO DE ATENDIMENTO - SUPORTE VIA CHAT AO VIVO
+Protocolo: CHAT-20261118-9931
+Atendente: Lucas G. (Nível 1)
+Cliente: Beatriz Fontana
+Data/Hora de Início: 18/11/2026 11:02:14
+Data/Hora de Fim: 18/11/2026 11:18:40
+=======================================================
+
+[11:02:14] Sistema: Atendimento iniciado. Você está falando com Lucas G.
+[11:02:16] Lucas G.: Olá Beatriz, bom dia! Como posso te ajudar hoje?
+[11:02:40] Beatriz Fontana: Oi Lucas, bom dia. Estou tentando logar na minha conta desde as 8h da manhã e não consigo. Diz que minha senha está incorreta, mas eu tenho certeza que é a mesma.
+[11:03:05] Lucas G.: Entendi, Beatriz. Você já tentou utilizar a opção 'Esqueci minha senha' na tela de login?
+[11:03:32] Beatriz Fontana: Sim, cliquei umas 4 vezes! O problema é que o e-mail de recuperação com o link simplesmente não chega na minha caixa de entrada. Já olhei na pasta de Spam, no lixo eletrônico e na aba de promoções do Gmail, e nada.
+[11:04:15] Lucas G.: Compreendo. Você poderia me confirmar o endereço de e-mail cadastrado na sua conta e o CPF do titular?
+[11:04:35] Beatriz Fontana: O e-mail é beatriz.fontana@consultoria.com.br e CPF 222.333.444-55.
+[11:06:10] Lucas G.: Obrigado pelas informações. Localizei o cadastro aqui. Notei que houve três tentativas com bloqueio temporário por segurança devido ao número de tentativas falhas consecutivas.
+[11:07:02] Beatriz Fontana: Mas Lucas, eu preciso acessar agora com urgência! Tenho uma reunião com a diretoria às 11h30 para apresentar o relatório mensal que está salvo dentro da plataforma de vocês. Se eu não acessar, vou passar uma vergonha enorme.
+[11:08:20] Lucas G.: Fique tranquila Beatriz, vou realizar o desbloqueio manual do seu usuário agora mesmo e vou disparar um link de reset com validade de 15 minutos diretamente pelo nosso servidor primário.
+[11:09:45] Lucas G.: Pronto, o desbloqueio foi realizado e o e-mail prioritário foi reenviado. Poderia atualizar sua caixa de entrada, por favor?
+[11:10:30] Beatriz Fontana: Chegou!! Acabou de apitar aqui. Vou cadastrar a nova senha agora.
+[11:11:15] Beatriz Fontana: Deu certo!! Consegui entrar no painel e o relatório está aqui intacto.
+[11:11:35] Lucas G.: Que excelente notícia, Beatriz! Fico muito feliz que tenhamos conseguido resolver antes da sua reunião. Desejo uma ótima apresentação! Posso ajudar com mais alguma dúvida?
+[11:12:05] Beatriz Fontana: Era só isso mesmo, Lucas! Muito obrigada pela agilidade e paciência. Salvou meu dia!
+[11:12:15] Lucas G.: Por nada, Beatriz! Tenha um excelente dia e precisando estamos à disposição.
+[11:12:20] Sistema: Atendimento encerrado pela usuária com avaliação 5 estrelas.

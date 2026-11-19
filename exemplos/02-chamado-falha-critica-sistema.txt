@@ -1,0 +1,23 @@
+[CHAMADO DE SUPORTE TÉCNICO - INCIDENTE CRÍTICO #INC-202611-042]
+Prioridade Informada pelo Usuário: P1 - Bloqueante
+Módulo Afetado: Emissão de Notas Fiscais e Fechamento de Vendas (PDV)
+Data/Hora: 18/11/2026 14:32:10
+
+Descrição detalhada da falha:
+Boa tarde. Desde a última atualização liberada por vocês hoje às 14h00, todos os nossos caixas e o portal web de faturamento estão travando completamente na etapa de emissão de NF-e. 
+
+Ao clicar no botão "Autorizar SEFAZ", a tela carrega por cerca de 45 segundos e estoura o erro:
+"HTTP 500: Database lock timeout / Connection pool exhausted in billing_worker.py".
+
+Temos 14 lojas físicas paradas no momento com filas de clientes nos caixas sem conseguir finalizar as compras e emitir o cupom fiscal. O impacto financeiro estimado já ultrapassa R$ 80.000 em vendas travadas apenas nesta primeira meia hora.
+
+Ações já tentadas pela nossa TI interna:
+1. Reiniciamos os terminais locais de PDV.
+2. Limpamos o cache e cookies do navegador dos caixas web.
+3. Testamos a conectividade com o portal da SEFAZ estadual (está operando 100% normal).
+
+Necessitamos de intervenção emergencial da equipe de engenharia e sustentação de vocês para rollback da versão ou correção do pool de conexões. 
+
+Contatos de plantão:
+Mariana Siqueira (Gerente de TI) - (21) 99123-9876
+Email: mariana.siqueira@rededehipermercados.com.br

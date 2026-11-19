@@ -18,6 +18,16 @@
 * ⚡ **Webhook n8n (Orquestrador em Produção):** `https://n8n.dmedia.com.br/webhook/e7561c7e-44bb-4dcf-8a43-a8adca53ae32`
 * 🐙 **Repositório GitHub:** [https://github.com/Davisvasconcellos/kodie-desafio1](https://github.com/Davisvasconcellos/kodie-desafio1)
 
+> 🔒 **O que fazer se o navegador acusar "Site Não Seguro" / Conexão Não Privada:**  
+> Ao acessar o link em produção (`https://desafio1.dmedia.com.br`), caso o seu navegador exiba o aviso de segurança de certificado SSL (comum durante a propagação e renovação do Let's Encrypt pelo Dokploy), siga o procedimento padrão:  
+> 1. Clique em **"Avançado"** (ou *"Mais detalhes"*).  
+> 2. Clique em **"Ir para desafio1.dmedia.com.br (não seguro)"** para prosseguir.  
+> A aplicação carregará normalmente sem nenhum risco à sua máquina.
+
+> 🎓 **Disclaimer Educacional & Uso de Dados Fictícios:**  
+> Esta solução foi desenvolvida com propósito **estritamente educacional, acadêmico e didático** como entrega do **Desafio Técnico KODIE (IA e Automação)**.  
+> **Todos os dados apresentados, logs, documentos de teste, e-mails, nomes de clientes, empresas, CNPJs, CPFs e valores financeiros são 100% fictícios**, criados unicamente para validar as capacidades de processamento semântico, resumo e esteiras automatizadas da solução.
+
 ---
 
 ## 1. Apresentação da Ideia
@@ -49,6 +59,7 @@ O projeto contempla de forma sinérgica os três cenários propostos na especifi
 * **Aba "Upload de Arquivo":** Suporte a arrastar e soltar (drag & drop) e seleção de arquivos `.txt`, `.md`, `.csv`, `.json` e `.pdf`.
   * **Limite de Upload de 500 KB:** Proteção contra sobrecarga de payload, com validação instantânea no navegador.
   * **Extração Client-Side de PDF:** Leitura nativa de PDFs diretamente no navegador via biblioteca **PDF.js**, sem necessidade de parsers pesados no servidor.
+  * **📁 Pasta de Arquivos de Teste Prontos:** Disponibilizamos na pasta [`exemplos/`](exemplos/) um conjunto com **10 arquivos reais de demonstração** (chats, e-mails, relatórios, notificações e chamados de suporte) prontos para arrastar e soltar no upload!
 * **Aba "Histórico (DB)":** Consulta em tempo real às triagens salvas no banco de dados SQLite, com busca e reabertura de análises anteriores.
 * **Aba "Configurações":**
   * **Seletor de Rota Didático:** Alterna entre *Via n8n* e *Direto na API*.
@@ -281,6 +292,18 @@ DESAFIO-1/
 ├── frontend/
 │   ├── index.html                          # UI com Tailwind, Lucide Icons e PDF.js
 │   └── app.js                              # Lógica de upload (500k), modo readonly e testes
+├── exemplos/                               # 10 Arquivos de exemplo para teste de upload
+│   ├── 01-email-cobranca-duplicada.txt
+│   ├── 02-chamado-falha-critica-sistema.txt
+│   ├── 03-proposta-expansao-comercial.txt
+│   ├── 04-suporte-integracao-api.md
+│   ├── 05-notificacao-cancelamento-contrato.txt
+│   ├── 06-transcricao-chat-ao-vivo.txt
+│   ├── 07-relatorio-feedbacks-clientes.csv
+│   ├── 08-alerta-seguranca-acesso-suspeito.md
+│   ├── 09-elogio-reconhecimento-suporte.txt
+│   ├── 10-webhook-estorno-gateway.json
+│   └── README.md                           # Catálogo didático dos cenários de teste
 ├── n8n/
 │   ├── 01-workflow-para-importar.json       # Template didático para importar em nova instância
 │   ├── 02-workflow-exportado-producao.json  # Cópia bruta da instância ativa Dokploy
