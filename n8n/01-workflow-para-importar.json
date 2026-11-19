@@ -89,7 +89,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"text\": \"{{ $json.text }}\",\n  \"source\": \"{{ $json.source }}\",\n  \"filename\": \"{{ $json.filename }}\",\n  \"apiKey\": \"{{ $json.apiKey }}\"\n}",
+        "jsonBody": "={{ JSON.stringify({\n  text: $json.text,\n  source: $json.source,\n  filename: $json.filename,\n  apiKey: $json.apiKey\n}) }}",
         "options": {
           "allowUnauthorizedCerts": true
         }
