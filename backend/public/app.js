@@ -619,3 +619,4 @@ async function handleClearHistory() {
     alert(`Erro ao limpar: ${err.message}`);
   }
 }
+

@@ -76,7 +76,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://localhost:3001/api/analyze",
+        "url": "https://desafio1.dmedia.com.br/api/analyze",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -89,7 +89,9 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n  \"text\": \"{{ $json.text }}\",\n  \"source\": \"{{ $json.source }}\",\n  \"filename\": \"{{ $json.filename }}\",\n  \"apiKey\": \"{{ $json.apiKey }}\"\n}",
-        "options": {}
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
