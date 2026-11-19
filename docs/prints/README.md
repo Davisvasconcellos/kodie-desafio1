@@ -11,3 +11,4 @@ Coloque aqui os prints da automação conforme solicitado no Item 7 do regulamen
 7. `07-config-sla.png`: Print dos nós de definição de SLA (Crítico e Padrão).
 8. `08-config-respond.png`: Print do nó Respond to Webhook com o payload JSON formatado.
 9. `09-resultado-execucao.png`: Print detalhado demonstrando os dados recebidos e processados em cada etapa.
+

@@ -138,7 +138,7 @@
             <i data-lucide="upload" class="w-6 h-6"></i>
           </div>
           <p class="text-sm font-medium text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition">Clique para selecionar ou arraste o arquivo aqui</p>
-          <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Formatos suportados: TXT, PDF, MD, CSV, JSON</p>
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Formatos suportados: TXT, PDF, MD, CSV, JSON <span class="text-indigo-500 font-semibold">(Tamanho máximo: 500 KB)</span></p>
         </div>
 
         <!-- Preview do Arquivo Selecionado -->
@@ -189,39 +189,72 @@
 
       <!-- ABA 4: Configurações -->
       <div id="tabContent-config" class="tab-content hidden flex flex-col space-y-4 bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm transition-colors">
-        <div>
-          <h2 class="text-sm font-semibold text-slate-800 dark:text-slate-200">Configurações do Desafio</h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Configure as integrações de API e fluxo de automação.</p>
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-semibold text-slate-800 dark:text-slate-200">Configurações do Desafio</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Configure as integrações de API e fluxo de automação.</p>
+          </div>
+          <span id="cfgProtectionBadge" class="hidden text-[10px] px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-medium border border-amber-300 dark:border-amber-800 flex items-center gap-1">
+            <i data-lucide="lock" class="w-3 h-3"></i> Somente Leitura
+          </span>
         </div>
 
-        <div class="space-y-3 text-xs">
-          <!-- Gemini Key -->
+        <!-- Banner de Proteção (quando ALLOW_CONFIG_EDITS=false) -->
+        <div id="cfgLockBanner" class="hidden p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-[11px] text-amber-800 dark:text-amber-300 flex items-start gap-2.5">
+          <i data-lucide="shield-alert" class="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5"></i>
           <div>
-            <label class="font-medium text-slate-700 dark:text-slate-300 block mb-1">Chave de API do Google Gemini:</label>
-            <input type="password" id="cfgGeminiKey" placeholder="AIzaSy... ou AQ.Ab8..." 
-              class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-2.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition">
-            <p class="text-[11px] text-slate-500 mt-1">Pode ser deixada em branco caso já esteja preenchida no arquivo <code>.env</code> do backend.</p>
+            <span class="font-bold block">Proteção de Configurações Ativa (Modo Somente Leitura):</span>
+            <span class="text-amber-700 dark:text-amber-400">A URL do Webhook e a Chave de API da IA estão bloqueadas para edição pública para evitar alterações acidentais. Para permitir edição no seu ambiente, configure <code>ALLOW_CONFIG_EDITS=true</code> no arquivo <code>.env</code> do servidor.</span>
           </div>
+        </div>
 
-          <!-- Roteamento do Envio -->
-          <div class="pt-2 border-t border-slate-200 dark:border-slate-800">
-            <label class="font-medium text-slate-700 dark:text-slate-300 block mb-1">Rota de Processamento:</label>
-            <div class="grid grid-cols-2 gap-2 mt-1">
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 transition">
-                <input type="radio" name="routingMode" value="n8n" checked onchange="toggleRoutingMode()">
-                <div>
-                  <span class="font-semibold block text-indigo-600 dark:text-indigo-400">Via n8n (Desafio)</span>
-                  <span class="text-[10px] text-slate-500 dark:text-slate-400">Envia para Webhook do n8n</span>
+        <div class="space-y-3.5 text-xs">
+          <!-- Roteamento do Envio (Modos Didáticos) -->
+          <div>
+            <label class="font-medium text-slate-700 dark:text-slate-300 block mb-1.5">Rota de Processamento:</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <!-- Modo 1: Via n8n -->
+              <label class="flex flex-col p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-600 transition">
+                <div class="flex items-center gap-2 mb-1">
+                  <input type="radio" name="routingMode" value="n8n" checked onchange="toggleRoutingMode()">
+                  <span class="font-semibold text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
+                    <i data-lucide="git-merge" class="w-3.5 h-3.5"></i>
+                    Via n8n (Oficial / Orquestrador)
+                  </span>
                 </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed pl-5">
+                  Dispara a esteira completa no n8n com Webhook, roteamento condicional de prioridade e cálculo de SLA de atendimento.
+                </p>
               </label>
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 transition">
-                <input type="radio" name="routingMode" value="backend" onchange="toggleRoutingMode()">
-                <div>
-                  <span class="font-semibold block text-emerald-600 dark:text-emerald-400">Direto na API</span>
-                  <span class="text-[10px] text-slate-500 dark:text-slate-400">Chama Express /api/analyze</span>
+
+              <!-- Modo 2: Direto na API -->
+              <label class="flex flex-col p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 cursor-pointer hover:border-emerald-400 dark:hover:border-emerald-600 transition">
+                <div class="flex items-center gap-2 mb-1">
+                  <input type="radio" name="routingMode" value="backend" onchange="toggleRoutingMode()">
+                  <span class="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                    <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                    Direto na API (Validação Didática)
+                  </span>
                 </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed pl-5">
+                  Opção didática para validar a LLM (Google Gemini), o resumo executivo e o banco SQLite diretamente, <strong>caso o avaliador ou usuário não tenha o n8n instalado</strong>.
+                </p>
               </label>
             </div>
+          </div>
+
+          <!-- Gemini Key -->
+          <div class="pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div class="flex items-center justify-between mb-1">
+              <label class="font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                <i data-lucide="key" class="w-3.5 h-3.5 text-indigo-500"></i>
+                Chave de API do Google Gemini:
+              </label>
+              <span id="geminiLockStatus" class="text-[10px] text-slate-400 flex items-center gap-1"></span>
+            </div>
+            <input type="password" id="cfgGeminiKey" placeholder="AIzaSy... ou AQ.Ab8..." 
+              class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-2.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition">
+            <p id="geminiHintText" class="text-[11px] text-slate-500 mt-1">Configurada no arquivo <code>.env</code> do servidor. Edição restrita pela flag <code>ALLOW_CONFIG_EDITS</code>.</p>
           </div>
 
           <!-- n8n Webhook URL & Modo de Teste -->
@@ -231,7 +264,7 @@
                 <i data-lucide="radio" class="w-3.5 h-3.5 text-indigo-500"></i>
                 URL do Webhook n8n:
               </label>
-              <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-mono">Modo Teste Integrado</span>
+              <span id="webhookLockStatus" class="text-[10px] text-slate-400 flex items-center gap-1 font-mono"></span>
             </div>
             
             <input type="text" id="cfgN8nUrl" value="https://n8n.dmedia.com.br/webhook/e7561c7e-44bb-4dcf-8a43-a8adca53ae32" 
@@ -253,31 +286,20 @@
               <p id="webhookStatusMessage" class="text-[11px] mb-1.5"></p>
               <pre id="webhookResponseBody" class="p-2 rounded bg-black/40 text-[10px] overflow-x-auto max-h-32 text-slate-300"></pre>
             </div>
-
-            <!-- Aviso de Nuvem vs Localhost -->
-            <div class="p-2.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-lg text-[11px] text-amber-800 dark:text-amber-300 space-y-1">
-              <p class="font-semibold flex items-center gap-1">
-                <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
-                Atenção à Conexão (Nuvem x Local):
-              </p>
-              <p class="text-amber-700 dark:text-amber-400">
-                Se o n8n está no Dokploy (nuvem) e o Backend está no seu computador (<code>localhost:3001</code>), o n8n não alcança seu computador diretamente.
-                Para testar ponta a ponta agora: selecione <strong>"Direto na API"</strong> na Rota de Processamento acima, ou use um túnel (ex: <code>npx localtunnel --port 3001</code>) no nó HTTP do n8n.
-              </p>
-            </div>
           </div>
 
           <!-- Backend API URL -->
           <div>
             <label class="font-medium text-slate-700 dark:text-slate-300 block mb-1">URL do Backend Express:</label>
-            <input type="text" id="cfgBackendUrl" value="http://localhost:3001" 
+            <input type="text" id="cfgBackendUrl" value="" 
               class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-2.5 text-slate-800 dark:text-slate-200 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 transition">
+            <p class="text-[11px] text-slate-500 mt-1">Ambiente Localhost: <code>http://localhost:3001</code> | Em Produção (Dokploy): <code>https://desafio1.dmedia.com.br</code></p>
           </div>
 
           <div class="pt-2">
-            <button onclick="saveConfigurations()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/20">
+            <button onclick="saveConfigurations()" id="btnSaveConfig" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/20">
               <i data-lucide="check" class="w-4 h-4"></i>
-              Salvar Preferências no Navegador
+              <span>Salvar Preferências no Navegador</span>
             </button>
           </div>
         </div>

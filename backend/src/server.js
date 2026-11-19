@@ -41,6 +41,20 @@ app.get('/health', (req, res) => {
 });
 
 /**
+ * GET /api/config-status
+ * Informa ao frontend se a edição de configurações críticas (Webhook e Chave de IA)
+ * está permitida via variável de ambiente ALLOW_CONFIG_EDITS (padrão: false para proteção).
+ */
+app.get('/api/config-status', (req, res) => {
+  const allowConfigEdits = process.env.ALLOW_CONFIG_EDITS === 'true';
+  res.json({
+    allowConfigEdits,
+    defaultWebhookUrl: process.env.N8N_WEBHOOK_URL || 'https://n8n.dmedia.com.br/webhook/e7561c7e-44bb-4dcf-8a43-a8adca53ae32',
+    hasServerApiKey: Boolean(process.env.GEMINI_API_KEY)
+  });
+});
+
+/**
  * POST /api/analyze
  * Recebe texto da mensagem ou documento, chama o Gemini e salva no SQLite.
  * Pode ser chamado diretamente pelo Frontend ou pelo n8n via HTTP Request node.

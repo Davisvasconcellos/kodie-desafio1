@@ -1,13 +1,18 @@
 // Estado da aplicação
+const defaultBackendUrl = (typeof window !== 'undefined' && window.location.origin.startsWith('http') && !window.location.origin.includes('file:')) 
+  ? window.location.origin 
+  : 'http://localhost:3001';
+
 const state = {
   activeTab: 'text',
-  backendUrl: localStorage.getItem('backendUrl') || 'http://localhost:3001',
+  backendUrl: localStorage.getItem('backendUrl') || defaultBackendUrl,
   n8nWebhookUrl: localStorage.getItem('n8nWebhookUrl') || 'https://n8n.dmedia.com.br/webhook/e7561c7e-44bb-4dcf-8a43-a8adca53ae32',
   geminiApiKey: localStorage.getItem('geminiApiKey') || '',
   routingMode: localStorage.getItem('routingMode') || 'n8n',
   selectedFile: null,
   extractedFileText: '',
-  lastAnalysis: null
+  lastAnalysis: null,
+  allowConfigEdits: false
 };
 
 // Exemplos rápidos para demonstração
@@ -154,6 +159,16 @@ function setupEventListeners() {
 
 // Extração de texto de arquivo (TXT, MD, CSV, JSON e PDF)
 async function handleFileSelection(file) {
+  if (!file) return;
+
+  // Limite estrito de 500 KB por arquivo
+  const MAX_FILE_SIZE = 500 * 1024; // 500 KB em bytes
+  if (file.size > MAX_FILE_SIZE) {
+    alert(`O arquivo "${file.name}" possui ${(file.size / 1024).toFixed(1)} KB e excede o limite máximo permitido de 500 KB.\n\nPor favor, envie um arquivo de até 500 KB.`);
+    removeSelectedFile();
+    return;
+  }
+
   state.selectedFile = file;
   const fileNameEl = document.getElementById('fileName');
   const fileSizeEl = document.getElementById('fileSize');
@@ -254,7 +269,7 @@ function toggleRoutingMode() {
 }
 
 // Configurações
-function loadConfigurations() {
+async function loadConfigurations() {
   document.getElementById('cfgBackendUrl').value = state.backendUrl;
   document.getElementById('cfgN8nUrl').value = state.n8nWebhookUrl;
   document.getElementById('cfgGeminiKey').value = state.geminiApiKey;
@@ -262,18 +277,91 @@ function loadConfigurations() {
   const radio = document.querySelector(`input[name="routingMode"][value="${state.routingMode}"]`);
   if (radio) radio.checked = true;
   toggleRoutingMode();
+
+  await checkConfigProtection();
+}
+
+async function checkConfigProtection() {
+  const geminiInput = document.getElementById('cfgGeminiKey');
+  const n8nInput = document.getElementById('cfgN8nUrl');
+  const lockBanner = document.getElementById('cfgLockBanner');
+  const badge = document.getElementById('cfgProtectionBadge');
+  const geminiLockStatus = document.getElementById('geminiLockStatus');
+  const webhookLockStatus = document.getElementById('webhookLockStatus');
+
+  try {
+    const res = await fetch(`${state.backendUrl}/api/config-status`);
+    if (res.ok) {
+      const data = await res.json();
+      state.allowConfigEdits = Boolean(data.allowConfigEdits);
+
+      if (data.defaultWebhookUrl) {
+        state.n8nWebhookUrl = data.defaultWebhookUrl;
+        if (n8nInput) n8nInput.value = data.defaultWebhookUrl;
+      }
+
+      if (!state.allowConfigEdits) {
+        // Bloquear edição de Webhook e Chave do Gemini (Modo Somente Leitura)
+        if (geminiInput) {
+          geminiInput.readOnly = true;
+          geminiInput.value = '';
+          geminiInput.placeholder = '🔒 Chave gerenciada no servidor (.env)';
+          geminiInput.classList.add('bg-slate-100', 'dark:bg-slate-900/60', 'text-slate-400', 'cursor-not-allowed');
+        }
+        if (n8nInput) {
+          n8nInput.readOnly = true;
+          n8nInput.classList.add('bg-slate-100', 'dark:bg-slate-900/60', 'text-slate-400', 'cursor-not-allowed');
+        }
+        if (lockBanner) lockBanner.classList.remove('hidden');
+        if (badge) badge.classList.remove('hidden');
+        if (geminiLockStatus) geminiLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium"><i data-lucide="lock" class="w-3 h-3"></i> Somente Leitura</span>';
+        if (webhookLockStatus) webhookLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium"><i data-lucide="lock" class="w-3 h-3"></i> Somente Leitura</span>';
+      } else {
+        // Permitir edição quando ALLOW_CONFIG_EDITS=true
+        if (geminiInput) {
+          geminiInput.readOnly = false;
+          geminiInput.placeholder = 'AIzaSy... ou AQ.Ab8...';
+          geminiInput.classList.remove('bg-slate-100', 'dark:bg-slate-900/60', 'text-slate-400', 'cursor-not-allowed');
+        }
+        if (n8nInput) {
+          n8nInput.readOnly = false;
+          n8nInput.classList.remove('bg-slate-100', 'dark:bg-slate-900/60', 'text-slate-400', 'cursor-not-allowed');
+        }
+        if (lockBanner) lockBanner.classList.add('hidden');
+        if (badge) badge.classList.add('hidden');
+        if (geminiLockStatus) geminiLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium"><i data-lucide="unlock" class="w-3 h-3"></i> Editável</span>';
+        if (webhookLockStatus) webhookLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium"><i data-lucide="unlock" class="w-3 h-3"></i> Editável</span>';
+      }
+    }
+  } catch (err) {
+    console.warn('Não foi possível verificar status de proteção:', err);
+  }
+
+  initIcons();
 }
 
 function saveConfigurations() {
-  state.backendUrl = document.getElementById('cfgBackendUrl').value.trim();
-  state.n8nWebhookUrl = document.getElementById('cfgN8nUrl').value.trim();
-  state.geminiApiKey = document.getElementById('cfgGeminiKey').value.trim();
-  state.routingMode = document.querySelector('input[name="routingMode"]:checked')?.value || 'n8n';
+  const newBackendUrl = document.getElementById('cfgBackendUrl').value.trim();
+  const newRoutingMode = document.querySelector('input[name="routingMode"]:checked')?.value || 'n8n';
 
+  state.backendUrl = newBackendUrl || defaultBackendUrl;
+  state.routingMode = newRoutingMode;
   localStorage.setItem('backendUrl', state.backendUrl);
-  localStorage.setItem('n8nWebhookUrl', state.n8nWebhookUrl);
-  localStorage.setItem('geminiApiKey', state.geminiApiKey);
   localStorage.setItem('routingMode', state.routingMode);
+
+  // Apenas salva n8nWebhookUrl e geminiApiKey no localStorage se a edição estiver liberada
+  if (state.allowConfigEdits) {
+    const newN8nUrl = document.getElementById('cfgN8nUrl').value.trim();
+    const newGeminiKey = document.getElementById('cfgGeminiKey').value.trim();
+    if (newN8nUrl) {
+      state.n8nWebhookUrl = newN8nUrl;
+      localStorage.setItem('n8nWebhookUrl', state.n8nWebhookUrl);
+    }
+    if (newGeminiKey) {
+      state.geminiApiKey = newGeminiKey;
+      localStorage.setItem('geminiApiKey', state.geminiApiKey);
+    }
+  }
 
   checkBackendHealth();
   alert('Configurações salvas com sucesso!');
