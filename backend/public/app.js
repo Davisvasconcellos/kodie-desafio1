@@ -1,11 +1,26 @@
-// Estado da aplicação
-const defaultBackendUrl = (typeof window !== 'undefined' && window.location.origin.startsWith('http') && !window.location.origin.includes('file:')) 
-  ? window.location.origin 
-  : 'http://localhost:3001';
+// Resolução resiliente da URL do Backend
+function resolveInitialBackendUrl() {
+  if (typeof window === 'undefined' || !window.location.origin || !window.location.origin.startsWith('http')) {
+    return 'http://localhost:3001';
+  }
+  const currentOrigin = window.location.origin;
+  const stored = localStorage.getItem('backendUrl');
+
+  // Se estamos em HTTPS ou em domínio público (não localhost) e o storage tinha localhost:3001,
+  // limpa o storage para evitar Mixed Content e adota a origem atual do deploy
+  if (stored && (window.location.protocol === 'https:' || !currentOrigin.includes('localhost')) && stored.includes('localhost')) {
+    localStorage.removeItem('backendUrl');
+    return currentOrigin;
+  }
+
+  return stored || currentOrigin;
+}
+
+const defaultBackendUrl = resolveInitialBackendUrl();
 
 const state = {
   activeTab: 'text',
-  backendUrl: localStorage.getItem('backendUrl') || defaultBackendUrl,
+  backendUrl: defaultBackendUrl,
   n8nWebhookUrl: localStorage.getItem('n8nWebhookUrl') || 'https://n8n.dmedia.com.br/webhook/e7561c7e-44bb-4dcf-8a43-a8adca53ae32',
   geminiApiKey: localStorage.getItem('geminiApiKey') || '',
   routingMode: localStorage.getItem('routingMode') || 'n8n',
@@ -282,6 +297,42 @@ async function loadConfigurations() {
 }
 
 async function checkConfigProtection() {
+  // 1. Aplica bloqueio preventivamente (Segurança por Padrão)
+  applyLockState(false);
+
+  try {
+    // Tenta primeiro endpoint relativo (sempre funciona no mesmo host, sem risco de CORS ou Mixed Content)
+    let res = null;
+    try {
+      res = await fetch('/api/config-status');
+    } catch {
+      // Se relativo falhar (ex: rodando via porta separada local), tenta com state.backendUrl
+      res = await fetch(`${state.backendUrl}/api/config-status`);
+    }
+
+    if (res && res.ok) {
+      const data = await res.json();
+      state.allowConfigEdits = (data.allowConfigEdits === true);
+
+      if (data.defaultWebhookUrl && !state.allowConfigEdits) {
+        state.n8nWebhookUrl = data.defaultWebhookUrl;
+        const n8nInput = document.getElementById('cfgN8nUrl');
+        if (n8nInput) n8nInput.value = data.defaultWebhookUrl;
+      }
+
+      applyLockState(state.allowConfigEdits);
+    } else {
+      applyLockState(false);
+    }
+  } catch (err) {
+    console.warn('Não foi possível verificar status de proteção:', err);
+    applyLockState(false);
+  }
+
+  initIcons();
+}
+
+function applyLockState(allowEdits) {
   const geminiInput = document.getElementById('cfgGeminiKey');
   const n8nInput = document.getElementById('cfgN8nUrl');
   const lockBanner = document.getElementById('cfgLockBanner');
@@ -289,55 +340,42 @@ async function checkConfigProtection() {
   const geminiLockStatus = document.getElementById('geminiLockStatus');
   const webhookLockStatus = document.getElementById('webhookLockStatus');
 
-  try {
-    const res = await fetch(`${state.backendUrl}/api/config-status`);
-    if (res.ok) {
-      const data = await res.json();
-      state.allowConfigEdits = Boolean(data.allowConfigEdits);
-
-      if (data.defaultWebhookUrl) {
-        state.n8nWebhookUrl = data.defaultWebhookUrl;
-        if (n8nInput) n8nInput.value = data.defaultWebhookUrl;
-      }
-
-      if (!state.allowConfigEdits) {
-        // Bloquear edição de Webhook e Chave do Gemini (Modo Somente Leitura)
-        if (geminiInput) {
-          geminiInput.readOnly = true;
-          geminiInput.value = '';
-          geminiInput.placeholder = '🔒 Chave gerenciada no servidor (.env)';
-          geminiInput.classList.add('bg-slate-100', 'dark:bg-slate-900/60', 'text-slate-400', 'cursor-not-allowed');
-        }
-        if (n8nInput) {
-          n8nInput.readOnly = true;
-          n8nInput.classList.add('bg-slate-100', 'dark:bg-slate-900/60', 'text-slate-400', 'cursor-not-allowed');
-        }
-        if (lockBanner) lockBanner.classList.remove('hidden');
-        if (badge) badge.classList.remove('hidden');
-        if (geminiLockStatus) geminiLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium"><i data-lucide="lock" class="w-3 h-3"></i> Somente Leitura</span>';
-        if (webhookLockStatus) webhookLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium"><i data-lucide="lock" class="w-3 h-3"></i> Somente Leitura</span>';
-      } else {
-        // Permitir edição quando ALLOW_CONFIG_EDITS=true
-        if (geminiInput) {
-          geminiInput.readOnly = false;
-          geminiInput.placeholder = 'AIzaSy... ou AQ.Ab8...';
-          geminiInput.classList.remove('bg-slate-100', 'dark:bg-slate-900/60', 'text-slate-400', 'cursor-not-allowed');
-        }
-        if (n8nInput) {
-          n8nInput.readOnly = false;
-          n8nInput.classList.remove('bg-slate-100', 'dark:bg-slate-900/60', 'text-slate-400', 'cursor-not-allowed');
-        }
-        if (lockBanner) lockBanner.classList.add('hidden');
-        if (badge) badge.classList.add('hidden');
-        if (geminiLockStatus) geminiLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium"><i data-lucide="unlock" class="w-3 h-3"></i> Editável</span>';
-        if (webhookLockStatus) webhookLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium"><i data-lucide="unlock" class="w-3 h-3"></i> Editável</span>';
-      }
+  if (!allowEdits) {
+    // MODO SOMENTE LEITURA (BLOQUEADO)
+    if (geminiInput) {
+      geminiInput.readOnly = true;
+      geminiInput.value = '';
+      geminiInput.placeholder = '🔒 Chave gerenciada no servidor (.env)';
+      geminiInput.classList.add('bg-slate-100', 'dark:bg-slate-900/60', 'text-slate-400', 'cursor-not-allowed');
+      geminiInput.classList.remove('bg-slate-50', 'dark:bg-slate-950', 'text-slate-800', 'dark:text-slate-200');
     }
-  } catch (err) {
-    console.warn('Não foi possível verificar status de proteção:', err);
+    if (n8nInput) {
+      n8nInput.readOnly = true;
+      n8nInput.classList.add('bg-slate-100', 'dark:bg-slate-900/60', 'text-slate-400', 'cursor-not-allowed');
+      n8nInput.classList.remove('bg-white', 'dark:bg-slate-900', 'text-slate-800', 'dark:text-slate-200');
+    }
+    if (lockBanner) lockBanner.classList.remove('hidden');
+    if (badge) badge.classList.remove('hidden');
+    if (geminiLockStatus) geminiLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium"><i data-lucide="lock" class="w-3 h-3"></i> Somente Leitura</span>';
+    if (webhookLockStatus) webhookLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium"><i data-lucide="lock" class="w-3 h-3"></i> Somente Leitura</span>';
+  } else {
+    // MODO EDITÁVEL (ALLOW_CONFIG_EDITS=true)
+    if (geminiInput) {
+      geminiInput.readOnly = false;
+      geminiInput.placeholder = 'AIzaSy... ou AQ.Ab8...';
+      geminiInput.classList.remove('bg-slate-100', 'dark:bg-slate-900/60', 'text-slate-400', 'cursor-not-allowed');
+      geminiInput.classList.add('bg-slate-50', 'dark:bg-slate-950', 'text-slate-800', 'dark:text-slate-200');
+    }
+    if (n8nInput) {
+      n8nInput.readOnly = false;
+      n8nInput.classList.remove('bg-slate-100', 'dark:bg-slate-900/60', 'text-slate-400', 'cursor-not-allowed');
+      n8nInput.classList.add('bg-white', 'dark:bg-slate-900', 'text-slate-800', 'dark:text-slate-200');
+    }
+    if (lockBanner) lockBanner.classList.add('hidden');
+    if (badge) badge.classList.add('hidden');
+    if (geminiLockStatus) geminiLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium"><i data-lucide="unlock" class="w-3 h-3"></i> Editável</span>';
+    if (webhookLockStatus) webhookLockStatus.innerHTML = '<span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium"><i data-lucide="unlock" class="w-3 h-3"></i> Editável</span>';
   }
-
-  initIcons();
 }
 
 function saveConfigurations() {

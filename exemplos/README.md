@@ -31,3 +31,4 @@ Esta pasta contém **10 arquivos representativos** em diferentes formatos (`.txt
 3. Arraste qualquer um dos arquivos desta pasta ou clique para selecionar.
 4. Veja o preview instantâneo do texto extraído (com validação do limite de 500 KB).
 5. Clique em **"Processar Triagem do Arquivo"** e veja a IA classificar, resumir e calcular o SLA dinâmico!
+

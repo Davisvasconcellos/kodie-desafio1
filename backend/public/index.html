@@ -203,13 +203,13 @@
             <h2 class="text-sm font-semibold text-slate-800 dark:text-slate-200">Configurações do Desafio</h2>
             <p class="text-xs text-slate-500 dark:text-slate-400">Configure as integrações de API e fluxo de automação.</p>
           </div>
-          <span id="cfgProtectionBadge" class="hidden text-[10px] px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-medium border border-amber-300 dark:border-amber-800 flex items-center gap-1">
+          <span id="cfgProtectionBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-medium border border-amber-300 dark:border-amber-800 flex items-center gap-1">
             <i data-lucide="lock" class="w-3 h-3"></i> Somente Leitura
           </span>
         </div>
 
         <!-- Banner de Proteção (quando ALLOW_CONFIG_EDITS=false) -->
-        <div id="cfgLockBanner" class="hidden p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-[11px] text-amber-800 dark:text-amber-300 flex items-start gap-2.5">
+        <div id="cfgLockBanner" class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-[11px] text-amber-800 dark:text-amber-300 flex items-start gap-2.5">
           <i data-lucide="shield-alert" class="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5"></i>
           <div>
             <span class="font-bold block">Proteção de Configurações Ativa (Modo Somente Leitura):</span>
@@ -259,10 +259,12 @@
                 <i data-lucide="key" class="w-3.5 h-3.5 text-indigo-500"></i>
                 Chave de API do Google Gemini:
               </label>
-              <span id="geminiLockStatus" class="text-[10px] text-slate-400 flex items-center gap-1"></span>
+              <span id="geminiLockStatus" class="text-[10px] text-slate-400 flex items-center gap-1">
+                <span class="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium"><i data-lucide="lock" class="w-3 h-3"></i> Somente Leitura</span>
+              </span>
             </div>
-            <input type="password" id="cfgGeminiKey" placeholder="AIzaSy... ou AQ.Ab8..." 
-              class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-2.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition">
+            <input type="password" id="cfgGeminiKey" readonly placeholder="🔒 Chave gerenciada no servidor (.env)" 
+              class="w-full bg-slate-100 dark:bg-slate-900/60 text-slate-400 cursor-not-allowed border border-slate-200 dark:border-slate-800 rounded-lg p-2.5 text-xs focus:outline-none transition">
             <p id="geminiHintText" class="text-[11px] text-slate-500 mt-1">Configurada no arquivo <code>.env</code> do servidor. Edição restrita pela flag <code>ALLOW_CONFIG_EDITS</code>.</p>
           </div>
 
@@ -273,11 +275,13 @@
                 <i data-lucide="radio" class="w-3.5 h-3.5 text-indigo-500"></i>
                 URL do Webhook n8n:
               </label>
-              <span id="webhookLockStatus" class="text-[10px] text-slate-400 flex items-center gap-1 font-mono"></span>
+              <span id="webhookLockStatus" class="text-[10px] text-slate-400 flex items-center gap-1 font-mono">
+                <span class="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium"><i data-lucide="lock" class="w-3 h-3"></i> Somente Leitura</span>
+              </span>
             </div>
             
-            <input type="text" id="cfgN8nUrl" value="https://n8n.dmedia.com.br/webhook/e7561c7e-44bb-4dcf-8a43-a8adca53ae32" 
-              class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-2.5 text-slate-800 dark:text-slate-200 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 transition">
+            <input type="text" id="cfgN8nUrl" readonly value="https://n8n.dmedia.com.br/webhook/e7561c7e-44bb-4dcf-8a43-a8adca53ae32" 
+              class="w-full bg-slate-100 dark:bg-slate-900/60 text-slate-400 cursor-not-allowed border border-slate-200 dark:border-slate-800 rounded-lg p-2.5 font-mono text-xs focus:outline-none transition">
             
             <div class="flex items-center gap-2">
               <button type="button" id="btnTestWebhook" onclick="testN8nWebhook()" class="flex-1 py-2 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5 shadow-sm">
@@ -435,7 +439,7 @@
     <p class="text-[11px] text-slate-400 dark:text-slate-500">🎓 Aplicação desenvolvida exclusivamente para fins didáticos e educacionais. Todos os dados, empresas e pessoas citados são 100% fictícios.</p>
   </footer>
 
-  <!-- Script Principal da Aplicação -->
-  <script src="app.js"></script>
+  <!-- Script Principal da Aplicação com Cache Buster -->
+  <script src="app.js?v=2.0.1"></script>
 </body>
 </html>
