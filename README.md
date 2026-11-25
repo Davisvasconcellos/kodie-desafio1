@@ -344,3 +344,18 @@ DESAFIO-1/
 - [x] **Deploy em Nuvem:** Sistema em produção rodando no Dokploy com HTTPS ativo.
 - [x] **Segurança e Boas Práticas:** Nenhuma credencial exposta e proteção `ALLOW_CONFIG_EDITS` implementada.
 - [x] **Vídeo Explicativo e Pitch Técnico:** Gravado e disponível no Jam ([assistir demonstração](https://jam.dev/c/596f6948-7978-4f74-914b-f06263acf0bc)).
+
+---
+
+## 12. Roadmap & Resiliência de IA: Mitigação de Rate Limits (HTTP 429)
+
+Em ambientes com alto volume de triagens simultâneas ou uso de planos gratuitos no Google AI Studio, limites de requisições por minuto (**RPM**) ou diárias (**RPD**) podem acionar o erro `HTTP 429 - RESOURCE_EXHAUSTED`. Como diretriz de evolução técnica do projeto, foram desenhadas as seguintes estratégias de resiliência:
+
+1. **Pool e Rotação Automática de Chaves (`GEMINI_API_KEYS`):**
+   - Configuração de múltiplas chaves gratuitas separadas por vírgula no `.env`.
+   - Detecção do erro `429` com comutação instantânea para a chave reserva sem impactar a requisição do usuário.
+2. **Transbordo Multi-Provedor (Cross-Provider Fallback):**
+   - Fallback de contingência para provedores alternativos de alta velocidade e cotas gratuitas generosas (ex.: **Groq** com **Llama 3.3 70B** ou **OpenAI-compatible endpoints**).
+   - Manutenção do mesmo schema estrito em JSON (`System Instruction`), garantindo que o n8n e o frontend continuem recebendo a mesma estrutura sem alterações.
+3. **Escalonamento por Modelos de Quota Independente:**
+   - Ampliação da esteira de fallback para modelos da família Gemini com limites de RPM separados (`gemini-2.0-flash`, `gemini-1.5-flash-8b` e `gemini-1.5-flash`).
