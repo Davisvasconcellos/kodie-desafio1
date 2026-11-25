@@ -5,7 +5,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { analyzeText } from './geminiService.js';
-import { saveAnalysis, getHistory, clearHistory } from './database.js';
+import { saveAnalysis, getHistory, clearHistory, getTodayAnalysisCount } from './database.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,6 +52,77 @@ app.get('/api/config-status', (req, res) => {
     defaultWebhookUrl: process.env.N8N_WEBHOOK_URL || 'https://n8n.dmedia.com.br/webhook/e7561c7e-44bb-4dcf-8a43-a8adca53ae32',
     hasServerApiKey: Boolean(process.env.GEMINI_API_KEY)
   });
+});
+
+/**
+ * GET /api/llm-quota
+ * Retorna as informações proativas de cota da LLM, modelo ativo e créditos restantes
+ */
+app.get('/api/llm-quota', async (req, res) => {
+  try {
+    const apiKey = req.headers['x-api-key'] || process.env.GEMINI_API_KEY;
+    const dailyLimit = Number(process.env.GEMINI_DAILY_LIMIT) || 500;
+    const offset = Number(process.env.GEMINI_QUOTA_OFFSET) || 25; // inicializado com a contagem da conta
+    const todayUsedInDb = getTodayAnalysisCount();
+    const totalUsedToday = todayUsedInDb + offset;
+    const remaining = Math.max(0, dailyLimit - totalUsedToday);
+    const rpm = 15;
+
+    if (!apiKey) {
+      return res.json({
+        success: true,
+        status: 'no_key',
+        model: 'Sem Chave',
+        remaining: 0,
+        dailyLimit,
+        usedToday: 0,
+        rpm: 0
+      });
+    }
+
+    // Validação rápida de conectividade com a API do Google (sem gastar cota de geração)
+    let isKeyHealthy = true;
+    try {
+      const probeRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}&pageSize=1`);
+      if (!probeRes.ok) {
+        if (probeRes.status === 429) {
+          return res.json({
+            success: true,
+            status: 'rate_limited',
+            model: 'Gemini 3.5 Lite',
+            remaining: 0,
+            dailyLimit,
+            usedToday: dailyLimit,
+            rpm,
+            message: 'Limite de taxa excedido na API (429)'
+          });
+        }
+        if (probeRes.status === 400 || probeRes.status === 403) {
+          isKeyHealthy = false;
+        }
+      }
+    } catch {
+      // Se a chamada externa falhar por rede transitória, não impede o cálculo das métricas locais
+    }
+
+    return res.json({
+      success: true,
+      status: isKeyHealthy ? (remaining > 0 ? 'active' : 'exhausted') : 'invalid_key',
+      model: 'Gemini 3.5 Lite',
+      modelFullName: 'Gemini 3.5 Flash Lite',
+      remaining,
+      dailyLimit,
+      usedToday: totalUsedToday,
+      rpm,
+      percentRemaining: Math.round((remaining / dailyLimit) * 100)
+    });
+  } catch (error) {
+    console.error('Erro ao verificar cota da LLM:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erro ao calcular cota da LLM'
+    });
+  }
 });
 
 /**

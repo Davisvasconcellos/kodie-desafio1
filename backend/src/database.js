@@ -88,6 +88,22 @@ export function getHistory(limit = 50) {
 }
 
 /**
+ * Retorna a contagem de análises realizadas hoje
+ */
+export function getTodayAnalysisCount() {
+  try {
+    const row = db.prepare(`
+      SELECT COUNT(*) as count FROM analyses
+      WHERE date(created_at) = date('now')
+    `).get();
+    return row ? Number(row.count) : 0;
+  } catch (err) {
+    console.error('Erro ao contar análises de hoje:', err);
+    return 0;
+  }
+}
+
+/**
  * Limpa o histórico
  */
 export function clearHistory() {

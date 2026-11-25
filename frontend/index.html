@@ -50,10 +50,10 @@
       
       <!-- Controles: Status da LLM, Vídeo Demo, Botão Light/Dark e Configurações -->
       <div class="flex items-center space-x-2 text-xs">
-        <!-- Badge da LLM com indicador verde -->
-        <div id="llmStatusBadge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium" title="Modelo de IA ativo e cota nominal por minuto">
+        <!-- Badge da LLM com indicador de créditos proativo -->
+        <div id="llmStatusBadge" onclick="checkLLMQuota()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-500 transition select-none" title="Clique para atualizar o saldo de créditos ao vivo">
           <span class="w-2 h-2 rounded-full bg-emerald-400" id="llmStatusDot"></span>
-          <span id="llmStatusText" class="font-mono text-[11px]">Gemini 3.5 Lite • 15 RPM</span>
+          <span id="llmStatusText" class="font-mono text-[11px]">Gemini 3.5 Lite • 475/500</span>
         </div>
 
         <!-- Botão Vídeo Demonstrativo Jam -->

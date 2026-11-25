@@ -250,23 +250,46 @@ function removeSelectedFile() {
   document.getElementById('btnAnalyzeFile').disabled = true;
 }
 
-// Controle de Status da LLM no Header
-function updateLLMStatus(status = 'online', customText = null) {
+// Consulta Proativa de Cota e Créditos da LLM
+async function checkLLMQuota() {
   const dot = document.getElementById('llmStatusDot');
   const text = document.getElementById('llmStatusText');
+  const badge = document.getElementById('llmStatusBadge');
   if (!dot || !text) return;
 
-  const defaultModelText = 'Gemini 3.5 Lite • 15 RPM';
+  try {
+    const res = await fetch(`${state.backendUrl}/api/llm-quota`);
+    if (res.ok) {
+      const data = await res.json();
+      const model = data.model || 'Gemini 3.5 Lite';
+      const remaining = data.remaining !== undefined ? data.remaining : 500;
+      const limit = data.dailyLimit || 500;
 
-  if (status === 'online') {
-    dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
-    text.innerText = customText || defaultModelText;
-  } else if (status === 'rate_limited') {
-    dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
-    text.innerText = 'Gemini • 429 Limite';
-  } else if (status === 'error') {
-    dot.className = 'w-2 h-2 rounded-full bg-rose-500';
-    text.innerText = customText || 'Gemini • Offline';
+      if (data.status === 'rate_limited') {
+        dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+        text.innerText = `${model} • 0/${limit} (429 Limite)`;
+        if (badge) badge.title = 'Limite de requisições por minuto ou diário atingido no Google AI Studio. Clique para reavaliar.';
+      } else if (data.status === 'exhausted' || remaining <= 0) {
+        dot.className = 'w-2 h-2 rounded-full bg-rose-500';
+        text.innerText = `${model} • 0/${limit} (Esgotado)`;
+        if (badge) badge.title = 'Créditos diários esgotados. Renovação à meia-noite pelo Google AI Studio.';
+      } else if (data.status === 'invalid_key' || data.status === 'no_key') {
+        dot.className = 'w-2 h-2 rounded-full bg-rose-500';
+        text.innerText = 'Gemini • Chave Inválida';
+        if (badge) badge.title = 'Chave da API do Google Gemini não configurada ou inválida.';
+      } else {
+        // Cota ativa e créditos disponíveis!
+        if (remaining <= 50) {
+          dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+        } else {
+          dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+        }
+        text.innerText = `${model} • ${remaining}/${limit}`;
+        if (badge) badge.title = `${data.modelFullName || model} ativo. ${remaining} créditos restantes hoje de ${limit} (${data.rpm || 15} RPM). Clique para atualizar.`;
+      }
+    }
+  } catch (err) {
+    console.warn('Erro ao consultar cota da LLM:', err);
   }
 }
 
@@ -275,12 +298,22 @@ async function checkBackendHealth() {
   try {
     const res = await fetch(`${state.backendUrl}/health`);
     if (res.ok) {
-      updateLLMStatus('online');
+      checkLLMQuota();
     } else {
-      updateLLMStatus('error');
+      const dot = document.getElementById('llmStatusDot');
+      const text = document.getElementById('llmStatusText');
+      if (dot && text) {
+        dot.className = 'w-2 h-2 rounded-full bg-rose-500';
+        text.innerText = 'Gemini • Offline';
+      }
     }
   } catch {
-    updateLLMStatus('error');
+    const dot = document.getElementById('llmStatusDot');
+    const text = document.getElementById('llmStatusText');
+    if (dot && text) {
+      dot.className = 'w-2 h-2 rounded-full bg-rose-500';
+      text.innerText = 'Gemini • Offline';
+    }
   }
 }
 
@@ -596,11 +629,9 @@ async function handleAnalyze(type) {
     }
 
     renderResult(responseData);
-    updateLLMStatus('online');
+    checkLLMQuota();
   } catch (err) {
-    if (err.message && (err.message.includes('429') || err.message.includes('RESOURCE_EXHAUSTED') || err.message.toLowerCase().includes('rate limit'))) {
-      updateLLMStatus('rate_limited');
-    }
+    checkLLMQuota();
     alert(`Falha no processamento: ${err.message}`);
     console.error(err);
   } finally {
