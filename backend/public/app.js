@@ -250,22 +250,37 @@ function removeSelectedFile() {
   document.getElementById('btnAnalyzeFile').disabled = true;
 }
 
-// Checagem de status da API
-async function checkBackendHealth() {
-  const statusText = document.getElementById('statusText');
-  const statusDot = document.getElementById('statusDot');
+// Controle de Status da LLM no Header
+function updateLLMStatus(status = 'online', customText = null) {
+  const dot = document.getElementById('llmStatusDot');
+  const text = document.getElementById('llmStatusText');
+  if (!dot || !text) return;
 
+  const defaultModelText = 'Gemini 3.5 Lite • 15 RPM';
+
+  if (status === 'online') {
+    dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+    text.innerText = customText || defaultModelText;
+  } else if (status === 'rate_limited') {
+    dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+    text.innerText = 'Gemini • 429 Limite';
+  } else if (status === 'error') {
+    dot.className = 'w-2 h-2 rounded-full bg-rose-500';
+    text.innerText = customText || 'Gemini • Offline';
+  }
+}
+
+// Checagem de status da conexão
+async function checkBackendHealth() {
   try {
     const res = await fetch(`${state.backendUrl}/health`);
     if (res.ok) {
-      statusDot.className = 'w-2 h-2 rounded-full bg-emerald-400';
-      statusText.innerText = 'API Conectada';
+      updateLLMStatus('online');
     } else {
-      throw new Error();
+      updateLLMStatus('error');
     }
   } catch {
-    statusDot.className = 'w-2 h-2 rounded-full bg-rose-500';
-    statusText.innerText = 'API Desconectada';
+    updateLLMStatus('error');
   }
 }
 
@@ -581,7 +596,11 @@ async function handleAnalyze(type) {
     }
 
     renderResult(responseData);
+    updateLLMStatus('online');
   } catch (err) {
+    if (err.message && (err.message.includes('429') || err.message.includes('RESOURCE_EXHAUSTED') || err.message.toLowerCase().includes('rate limit'))) {
+      updateLLMStatus('rate_limited');
+    }
     alert(`Falha no processamento: ${err.message}`);
     console.error(err);
   } finally {
